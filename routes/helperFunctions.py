@@ -9,6 +9,9 @@ def convertToLocal(time_string, zone):
     return datetime.strptime(time_string, '%Y-%m-%d %H:%M:%S').replace(tzinfo=pytz.utc).astimezone(pytz.timezone(zone)).strftime('%Y-%m-%d %H:%M:%S')
 
 def convertToLocal_T(time_string, zone):
+    meta = time_string.split('.')
+    if len(meta)<=1:
+        return datetime.strptime(time_string, '%Y-%m-%dT%H:%M:%S').replace(tzinfo=pytz.utc).astimezone(pytz.timezone(zone)).strftime('%Y-%m-%d %H:%M:%S')
     return datetime.strptime(time_string, '%Y-%m-%dT%H:%M:%S.%f').replace(tzinfo=pytz.utc).astimezone(pytz.timezone(zone)).strftime('%Y-%m-%d %H:%M:%S')
 
 def convertToUTC(time, zone):
@@ -193,11 +196,11 @@ def getUpDownTime(start, end, polls):
     status.append(None)
     times.append(end)
     
-    print("############# GET UP DOWN TIME = local hr start = ",start,flush=True)
-    print("############# GET UP DOWN TIME = local hr end = ",end,flush=True)
+    # print("############# GET UP DOWN TIME = local hr start = ",start,flush=True)
+    # print("############# GET UP DOWN TIME = local hr end = ",end,flush=True)
     
-    print("############# GET UP DOWN TIME = status = ",status,flush=True)
-    print("############# GET UP DOWN TIME = times = ",times,flush=True)
+    # print("############# GET UP DOWN TIME = status = ",status,flush=True)
+    # print("############# GET UP DOWN TIME = times = ",times,flush=True)
     
     # Interpolation
     uptime = 0
@@ -261,9 +264,6 @@ def getPollsWeek(db):
         query = text("SELECT t.store_id, \
                 coalesce(store_timezone.timezone_str,'America/Chicago'), \
                 jsonb_build_object( \
-                    '2023-01-18', jsonb_agg( \
-                        json_build_object('p1', p1, 'p2', p2) ORDER BY p2 \
-                    ) FILTER (WHERE DATE(p2) = '2023-01-18'), \
                     '2023-01-19', jsonb_agg( \
                         json_build_object('p1', p1, 'p2', p2) ORDER BY p2 \
                     ) FILTER (WHERE DATE(p2) = '2023-01-19'), \
@@ -281,15 +281,17 @@ def getPollsWeek(db):
                     ) FILTER (WHERE DATE(p2) = '2023-01-23'), \
                     '2023-01-24', jsonb_agg( \
                         json_build_object('p1', p1, 'p2', p2) ORDER BY p2 \
-                    ) FILTER (WHERE DATE(p2) = '2023-01-24') \
+                    ) FILTER (WHERE DATE(p2) = '2023-01-24'), \
+                    '2023-01-25', jsonb_agg( \
+                        json_build_object('p1', p1, 'p2', p2) ORDER BY p2 \
+                    ) FILTER (WHERE DATE(p2) = '2023-01-25') \
                 ) as status_timestamps \
             FROM ( \
                 SELECT ss.store_id, \
                     status AS p1, \
                     timestamp_utc AS p2 \
                 FROM store_status ss \
-                WHERE timestamp_utc >= '2023-01-18 00:00:00' AND timestamp_utc <= '2023-01-24 23:59:59' \
-                and (store_id in (1481966498820158979)) \
+                WHERE timestamp_utc >= '2023-01-18 00:00:00' AND timestamp_utc <= '2023-01-25 23:59:59' \
                 WINDOW w AS (PARTITION BY ss.store_id) \
             ) AS t \
             JOIN store_timezone ON t.store_id = store_timezone.store_id \
@@ -328,8 +330,10 @@ def listOflistsMergeIntervals(intervals):
 
     # Convert time strings to datetime objects for easier comparison
     for interval in intervals:
-        interval[0] = datetime.strptime(interval[0], "%H:%M:%S")
-        interval[1] = datetime.strptime(interval[1], "%H:%M:%S")
+        if type(interval[0]) == str:
+            interval[0] = datetime.strptime(interval[0], "%H:%M:%S")
+        if type(interval[1]) == str:
+            interval[1] = datetime.strptime(interval[1], "%H:%M:%S")
 
     # Sort the intervals by the start time
     # intervals.sort(key=lambda interval: interval[0])

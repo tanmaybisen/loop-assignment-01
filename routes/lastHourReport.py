@@ -67,7 +67,7 @@ def lastHourReport(report_id):
             # print("storeOpenIntervals = ",storeOpenIntervals ,flush=True)
             
             if storeOpenIntervals==None:        # No intervals for this day
-                print("storeid: ",storePoll[0]," up = ", uptime_lastHour_curStore," down = ", downtime_lastHour_curStore,flush=True)
+                # print("storeid: ",storePoll[0]," up = ", uptime_lastHour_curStore," down = ", downtime_lastHour_curStore,flush=True)
                 continue
             
             mergedIntervals = mergeIntervals(storeOpenIntervals)
@@ -99,7 +99,7 @@ def lastHourReport(report_id):
                     uptime_lastHour_curStore+=up
                     downtime_lastHour_curStore+=down
                     break
-            print("hour storeid: ",storePoll[0]," up = ", '{:.2f}'.format(uptime_lastHour_curStore)," down = ", '{:.2f}'.format(downtime_lastHour_curStore),flush=True)
+            print("HOUR storeid: ",storePoll[0]," up = ", '{:.2f}'.format(uptime_lastHour_curStore)," down = ", '{:.2f}'.format(downtime_lastHour_curStore),flush=True)
             insert_query = text('INSERT INTO reports \
                 ( \
                 report_id, \

@@ -8,6 +8,7 @@ from DB_Schema.DB_Connect import session, exc, text
 from routes.lastHourReport import lastHourReport
 from routes.lastDayReport import lastdayReport
 from routes.lastWeekReport import lastWeekReport
+from routes.lastWeekReportNew import lastWeekReportNew
 
 import os
 import random
@@ -25,9 +26,9 @@ triggerReportRouter = APIRouter()
 async def get_values(background_tasks: BackgroundTasks):
     # reportID = generateReportId()
     # background_tasks.add_task(compute_values , reportID)
-    background_tasks.add_task(lastHourReport , '8JUk')
-    background_tasks.add_task(lastdayReport , '8JUk')
-    background_tasks.add_task(lastWeekReport , '8JUk')        # In finally block on WeekReport generate combined csv
+    # background_tasks.add_task(lastHourReport , '8JUk')
+    # background_tasks.add_task(lastdayReport , '8JUk')
+    background_tasks.add_task(lastWeekReportNew , '8JUk')        # In finally block on WeekReport generate combined csv
     return {"report_id": '8JUk'}
 
 @triggerReportRouter.get("/get_report", tags=['Report'])
